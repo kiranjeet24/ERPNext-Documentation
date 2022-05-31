@@ -106,3 +106,34 @@ frappe.ui.form.on("Bus Component", {
 - First write code in api.py file create whitelist() where we use condition if bus component available.
 - Then use it in Javascript file as function where we call api.py and sending data field data to function.
 - Now in fee.py we calculate the bus component in loop and send grand total in database throught which we succesfully generate receipt with correct calculations.
+
+### Noticeboard App
+
+- In First approach we decide to use create doctype and apply workflow on it.
+- Where all states are defined like Approve by hod, Draft etc.
+- We allote Department to their Respective Hod and Clerk  So that they are able to create notice.
+- Every thing Works fine but When we apply some code then workflow states create problem. eg data is saved but changes apply with delay.
+- We find workflow also make task for app difficult because its file is not created inside the app that why it portability is difficult.
+- So we decide to work without workflow also learn new things from mistakes.
+- Assigning department to Hod & Clerk to one department in User Permission List.
+- We use condition like cse = department_name.
+- Department_name is fetched from doctype use function self.fieldname.
+- After apply such condition we use make_autoname function.
+- self.name = make_autoname('NOTICE-'+'CSE'+'/'+'.YYYY.'+'/'+'.#####')
+- This function return series 'NOTICE-CSE/2022/00001'
+
+**Fetching HOD by using variables in query**
+```py
+department = self.department
+requiredRole = "Hod" 
+		
+		self.hod = frappe.db.sql(f""" select full_name 
+			from `tabUser` 
+			where `email` IN (select user 
+			from `tabUser Permission` 
+			where `for_value`="{department}" AND `user` IN (select parent 
+			from `tabHas Role` 
+			where `role`="{requiredRole}" )) """)
+```
+
+- By using this query with variable we are able to use this for all departments.
